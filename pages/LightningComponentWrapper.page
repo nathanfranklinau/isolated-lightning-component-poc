@@ -1,0 +1,97 @@
+<apex:page id="LightningComponentWrapper" sideBar="false" showHeader="false" showChat="false" standardStylesheets="false">
+
+	<apex:includeScript value="{!$Resource.IFRAME_PROXY}" />
+	<apex:includeLightning />
+
+	<style type="text/css">
+		body {
+			margin: 0;
+			padding: 0;
+  		}
+	</style>
+
+	<script type="text/javascript">
+
+		/**
+		 * After this page has fully loaded, we process the querystring and extract the Lightning configuration to load.
+		 * The Querystring includes:
+		 *		app - The Lightning out Application (that includes the dependency to the Lightning component to be loaded)
+		 *		component - The Lightning component to load
+		 *		events - Any events exposed by the Lightning component that should be monitored (comma separated list)
+		 *		params - JSON string of params to pass to the Lightning component
+		 */
+		document.addEventListener("DOMContentLoaded", function() {
+		    // get the origin of this page
+			// this ensure only commands received and sent from this origin will be processed.
+			// probably better to get this value from somewhere else potentially more reliable
+			window.IFRAME_PROXY.origin = location.href.substr(0, location.href.indexOf('/', 8));
+
+		    // the app dependency for the lightning component (lightning out)
+		    var query = parseQuerystring();
+
+		   	var app = query.app || '';
+
+		   	// the component to load
+			var component = query.component || '';
+
+			// events to be proxied back to visual force and other app level components
+			var events = query.events || '';
+			if(events != '') {
+				events = events.split(',');
+   			} else {
+   				events = [];
+      		}
+
+			// parameters to be passed into the lightning component
+			var params = query.params || '';
+			if(params != '') {
+				params = JSON.parse(params);
+			} else {
+				params = {};
+			}
+
+			console.log('>> PROXIED LIGHTNING CONFIG', app, component, params, events);
+
+			if(app != '' && component != '') {
+				// create a container to place the lightning component
+				var container = document.createElement('DIV');
+				container.id = 'lightning' + component;
+				document.getElementById('lightningHolder').appendChild(container);
+
+				// create an instance of the lightning component using the specified lightning out app.
+				$Lightning.use('c:' + app, function() {
+					$Lightning.createComponent('c:' + component, params, 'lightning' + component, function(cmp) {
+						for(var i=0;i<events.length;i++) {
+						    console.log('>> PROXIED LIGHTNING >> LISTENING: ' + events[i] + ' on component ' + component);
+							$A.eventService.addHandler({
+								event: events[i].trim(),
+								handler: window.IFRAME_PROXY.proxyLightningEvent
+							});
+						}
+					});
+				});
+			}
+
+
+			/**
+			 * Convert the querystring into an object and return the object
+			 */
+			function parseQuerystring() {
+			    var qs = (window.location.search.indexOf('?') == 0 ? window.location.search.substr(1) : '');
+			    var output = {};
+				var config = qs.split('&');
+				for(var i=0;i<config.length;i++) {
+					var param = config[i].split('=');
+					if(param.length == 2) {
+					    output[param[0]] = decodeURIComponent(param[1]);
+					}
+			   }
+			   return output;
+			}
+		});
+	</script>
+
+	<div id="lightningHolder"></div>
+
+	<br/>
+</apex:page>

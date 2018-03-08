@@ -1,0 +1,55 @@
+<apex:page id="SamplePage">
+
+	<apex:includeLightning />
+
+	<style type="text/css">
+		select { background-color: red !important; }
+	</style>
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
+
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.js"></script>
+
+	<apex:includeScript value="{!$Resource.IFRAME_PROXY}" />
+
+	<div style="padding:20px;">
+		<h1>Wrapped Lightning Component</h1>
+		<p>This lightning component is completely isolated from the parent Visualforce page. All styles are rendered natively as Lightning Design System renders them.</p>
+		<apex:iframe src="/apex/LightningComponentWrapper?app=SampleComponentApp&component=SampleComponent&events=c:SampleComponentEvent" scrolling="false" width="100%" height="600" frameBorder="0" id="iframeSampleComponent" />
+
+		<script type="text/javascript">
+			jQuery(function($) {
+			    // get the origin of this page
+			    // this ensure only commands received and sent from this origin will be processed.
+			    // probably better to get this value from somewhere else potentially more reliable
+			    window.IFRAME_PROXY.origin = location.href.substr(0, location.href.indexOf('/', 8));
+				window.IFRAME_PROXY.monitorProxiedEvent('iframeSampleComponent', 'c:SampleComponentEvent', function(data) {
+					console.log('>> PROXIED EVENT RECEIVED', data);
+				});
+			});
+		</script>
+
+		<h1>Non-Wrapped Lightning Component</h1>
+		<p>This lightning component is rendered as a part of the Visualforce page flow. All styles are inherited from both the Visualforce page and Lightning Design System.</p>
+		<script type="text/javascript">
+			// create an instance of the lightning component using the specified lightning out app.
+			$Lightning.use('c:SampleComponentApp', function() {
+				$Lightning.createComponent('c:SampleComponent', {}, 'lightningWrapper', function(cmp) {
+					$A.eventService.addHandler({
+						event: 'c:SampleComponentEvent',
+						handler: function(event) {
+							console.log('>> EVENT RECEIVED FROM COMPONENT', event.getParams());
+						}
+					});
+				});
+			});
+		</script>
+
+		<div id="lightningWrapper" class="slds-scope"></div>
+	</div>
+
+</apex:page>

@@ -1,0 +1,36 @@
+<aura:component description="SampleComponent">
+	<aura:attribute name="fakeAccounts" type="Object" default="[]" />
+	<aura:attribute name="fakeAccountColumns" type="List" default="[]" />
+
+	<aura:handler name="init" value="{!this}" action="{!c.init}"/>
+
+	<aura:registerEvent name="SampleComponentEvent" type="c:SampleComponentEvent"/>
+
+	<lightning:datatable data="{!v.fakeAccounts}" columns="{!v.fakeAccountColumns}" keyField="id" />
+
+	<lightning:layout multipleRows="true">
+		<lightning:layoutItem padding="around-small" size="6" smallDeviceSize="6" largeDeviceSize="6" mediumDeviceSize="6">
+			<lightning:select label="Customer Type" name="customerType" aura:id="customerType">
+				<option value="">- Any -</option>
+			</lightning:select>
+		</lightning:layoutItem>
+		<lightning:layoutItem padding="around-small" size="6" smallDeviceSize="6" largeDeviceSize="6" mediumDeviceSize="6">
+			<lightning:input type="email" label="Email" name="emailAddress" aura:id="emailAddress" />
+		</lightning:layoutItem>
+		<lightning:layoutItem padding="around-small" size="6" smallDeviceSize="6" largeDeviceSize="6" mediumDeviceSize="6">
+			<lightning:input type="text" label="First Name" name="firstName" aura:id="firstName" />
+		</lightning:layoutItem>
+		<lightning:layoutItem padding="around-small" size="6" smallDeviceSize="6" largeDeviceSize="6" mediumDeviceSize="6">
+			<lightning:input type="phone" label="Phone" name="phoneNumber" aura:id="phoneNumber" />
+		</lightning:layoutItem>
+		<lightning:layoutItem padding="around-small" size="6" smallDeviceSize="6" largeDeviceSize="6" mediumDeviceSize="6">
+			<lightning:input type="text" label="Last Name" name="lastName" aura:id="lastName" />
+		</lightning:layoutItem>
+		<lightning:layoutItem padding="around-small" size="6" smallDeviceSize="6" largeDeviceSize="6" mediumDeviceSize="6">
+			<lightning:input type="text" label="Account No." name="accountNo" aura:id="accountNo" />
+		</lightning:layoutItem>
+		<lightning:layoutItem padding="around-small" size="6" smallDeviceSize="6" largeDeviceSize="6" mediumDeviceSize="6">
+			<lightning:input type="text" label="Account Name" name="accountName" aura:id="accountName" />
+		</lightning:layoutItem>
+	</lightning:layout>
+</aura:component>
